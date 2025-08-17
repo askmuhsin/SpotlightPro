@@ -29,4 +29,11 @@ Select what matters; dim, blur, or blackout the rest. Clean surface; sharper att
 
 ---
 
+## Changelog
+
+### v1.1.0
+Basic full-page blur functionality. Click extension icon → "Blur Page" button → entire webpage blurs with CSS filter.
+
+---
+
 **Install SpotlightPro — focus that amplifies performance. 🎯**  
