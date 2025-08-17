@@ -31,6 +31,9 @@ Select what matters; dim, blur, or blackout the rest. Clean surface; sharper att
 
 ## Changelog
 
+### v1.1.1
+Toggle behavior and keyboard shortcuts. Button now toggles blur/unblur with visual status. Added Ctrl+Shift+B shortcut. Compact popup with instructions and settings page.
+
 ### v1.1.0
 Basic full-page blur functionality. Click extension icon → "Blur Page" button → entire webpage blurs with CSS filter.
 

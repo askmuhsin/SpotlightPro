@@ -1,10 +1,13 @@
 {
   "manifest_version": 3,
   "name": "SpotlightPro",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Make any webpage instantly yours",
   "action": {
     "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
@@ -12,5 +15,15 @@
       "js": ["content.js"]
     }
   ],
-  "permissions": ["activeTab"]
+  "options_page": "options.html",
+  "permissions": ["activeTab"],
+  "commands": {
+    "toggle-blur": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+B",
+        "mac": "Command+Shift+B"
+      },
+      "description": "Toggle page blur"
+    }
+  }
 }
