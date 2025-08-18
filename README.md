@@ -31,6 +31,9 @@ Select what matters; dim, blur, or blackout the rest. Clean surface; sharper att
 
 ## Changelog
 
+### v1.1.3
+Fixed keyboard shortcuts with direct key detection. Works cross-platform: Ctrl+Shift+B (Windows/Linux) and Cmd+Shift+B (Mac). Reliable alternative to Chrome commands API.
+
 ### v1.1.1
 Toggle behavior and keyboard shortcuts. Button now toggles blur/unblur with visual status. Added Ctrl+Shift+B shortcut. Compact popup with instructions and settings page.
 
