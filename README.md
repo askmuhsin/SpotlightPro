@@ -31,6 +31,9 @@ Select what matters; dim, blur, or blackout the rest. Clean surface; sharper att
 
 ## Changelog
 
+### v1.1.4
+Added dual-mode functionality: full page blur + region selection. Separated UI into two buttons. Started Phase 1 region selection implementation with technical architecture planning.
+
 ### v1.1.3
 Fixed keyboard shortcuts with direct key detection. Works cross-platform: Ctrl+Shift+B (Windows/Linux) and Cmd+Shift+B (Mac). Reliable alternative to Chrome commands API.
 

@@ -3,7 +3,7 @@
 <head>
   <style>
     body {
-      width: 180px;
+      width: 200px;
       padding: 12px;
       font-family: Arial, sans-serif;
       font-size: 13px;
@@ -32,6 +32,7 @@
     .settings-link {
       text-align: center;
       font-size: 11px;
+      margin-top: 4px;
     }
     .settings-link a {
       color: #666;
@@ -44,8 +45,9 @@
 </head>
 <body>
   <div class="header">SpotlightPro</div>
-  <div class="instructions">Use Ctrl+Shift+B (⌘+Shift+B on Mac) or click below</div>
-  <button id="blurBtn">Blur Page</button>
+  <div class="instructions">Use Ctrl+Shift+B for full blur</div>
+  <button id="blurBtn">Toggle Full Page Blur</button>
+  <button id="selectBtn">Select Region to Blur</button>
   <div class="settings-link">
     <a href="#" id="settingsLink">⚙️ Settings</a>
   </div>
