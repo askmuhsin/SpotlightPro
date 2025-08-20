@@ -1,0 +1,69 @@
+SpotlightPro Popup – Design Spec
+
+The popup is a 360px wide panel with a translucent, glassy background and rounded corners (Apple liquid crystal style). The top bar contains the logo, title, subtitle (“Focus controls”), and a small Settings link. The main controls are three stacked buttons: Full-Screen, Select (Box/Polygon), and Snap to Element, each with icons and keyboard shortcuts (⌘⇧F, ⌘⇧S, ⌘⇧E). Below them is an Edit/Expand button and a Clear All control styled as a pill/toggle-like button. A segmented control provides four mask types (Shade, Blur, Grain, Blackout), with one active at a time. The “Persist on Site” option is a toggle switch with a label, and a secondary action “Docs” link appears in the footer alongside quick key hints. The look should remain minimal, premium, and intuitive: subtle gradients, soft shadows, clear spacing, and accessible text sizes.
+
+SpotlightPro – Options Page Design Spec
+
+Overall Layout
+
+Full-page panel with the same translucent, frosted-glass style background.
+
+Content centered in a responsive card (max-width ~640px) with generous padding, rounded corners, and soft shadows.
+
+Typography: clean, modern system font (-apple-system, Inter, Segoe UI).
+
+Sections (with subtle dividers, generous white space)
+
+Header
+
+Logo + “SpotlightPro” title.
+
+Subtext: “Customize your focus experience.”
+
+Keyboard Shortcuts
+
+Grid layout of shortcut mappings:
+
+Full-Screen: ⌘⇧F
+
+Select / Polygon: ⌘⇧S
+
+Snap to Element: ⌘⇧E
+
+Each shortcut in a pill-style editable field (so user can remap).
+
+Small “Reset defaults” link in top-right of this section.
+
+Mask Styles
+
+Segmented preview tiles (Shade, Blur, Grain, Blackout) with larger visual previews than in popup.
+
+Option to adjust intensity (slider beneath each style).
+
+Users can set a default mask here.
+
+Persistence Settings
+
+Toggle: “Remember my selections per site” (default off).
+
+Dropdown: persistence mode (This page only • Entire domain • All sites).
+
+Advanced Options
+
+Checkboxes:
+
+“Show quick tips in popup.”
+
+“Enable edit mode by double-click.”
+
+“Sync settings across devices” (if using chrome.storage.sync).
+
+Support / Docs
+
+Links styled minimally: Docs, FAQ, Report Issue.
+
+Footer
+
+Muted text: “SpotlightPro © 2025 – Crafted for clarity.”
+
+Version number in subtle gray at the corner.
