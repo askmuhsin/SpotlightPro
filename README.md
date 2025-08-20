@@ -31,6 +31,9 @@ Select what matters; dim, blur, or blackout the rest. Clean surface; sharper att
 
 ## Changelog
 
+### v1.1.5
+Production-ready foundation with canvas-based architecture. Dual-mode interface with Full Page/Regions toggle. Canvas overlay eliminates DOM conflicts and scroll issues. Proper coordinate system, visual selection feedback, and region management. Addresses technical debt from previous implementation.
+
 ### v1.1.4
 Added dual-mode functionality: full page blur + region selection. Separated UI into two buttons. Started Phase 1 region selection implementation with technical architecture planning.
 

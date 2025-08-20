@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 # Claude development notes
 CLAUDE.md
+
+# Gemini clipboard
+.gemini-clipboard/

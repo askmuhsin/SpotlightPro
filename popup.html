@@ -3,36 +3,103 @@
 <head>
   <style>
     body {
-      width: 200px;
-      padding: 12px;
+      width: 220px;
+      padding: 14px;
       font-family: Arial, sans-serif;
       font-size: 13px;
     }
     .header {
       text-align: center;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       font-weight: bold;
       color: #333;
     }
-    .instructions {
+    
+    /* Mode Selector */
+    .mode-selector {
+      display: flex;
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 6px 8px;
+      font-size: 11px;
+      border: none;
+      background: #f5f5f5;
+      cursor: pointer;
+      margin: 0;
+    }
+    .mode-btn.active {
+      background: #007cba;
+      color: white;
+    }
+    
+    /* Status */
+    .status {
       font-size: 11px;
       color: #666;
-      margin-bottom: 10px;
       text-align: center;
+      margin-bottom: 10px;
+      min-height: 16px;
     }
+    .status.active {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    
+    /* Buttons */
     button {
       width: 100%;
       padding: 8px;
-      font-size: 14px;
+      font-size: 13px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
+    
+    .primary-btn {
+      background: #007cba;
+      color: white;
+    }
+    .primary-btn:hover {
+      background: #005a87;
+    }
+    .primary-btn.active {
+      background: #4CAF50;
+    }
+    
+    .secondary-btn {
+      background: #f0f0f0;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+    .secondary-btn:hover {
+      background: #e0e0e0;
+    }
+    .secondary-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* Region Info */
+    .region-info {
+      font-size: 11px;
+      color: #666;
+      text-align: center;
+      margin-bottom: 8px;
+      min-height: 14px;
+    }
+    
     .settings-link {
       text-align: center;
       font-size: 11px;
-      margin-top: 4px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #eee;
     }
     .settings-link a {
       color: #666;
@@ -45,12 +112,33 @@
 </head>
 <body>
   <div class="header">SpotlightPro</div>
-  <div class="instructions">Use Ctrl+Shift+B for full blur</div>
-  <button id="blurBtn">Toggle Full Page Blur</button>
-  <button id="selectBtn">Select Region to Blur</button>
+  
+  <!-- Mode Selector -->
+  <div class="mode-selector">
+    <button class="mode-btn active" id="fullPageMode">Full Page</button>
+    <button class="mode-btn" id="regionsMode">Regions</button>
+  </div>
+  
+  <!-- Status -->
+  <div class="status" id="status">Ready</div>
+  
+  <!-- Full Page Controls -->
+  <div id="fullPageControls">
+    <button class="primary-btn" id="toggleBlurBtn">Toggle Blur</button>
+  </div>
+  
+  <!-- Region Controls -->
+  <div id="regionControls" style="display: none;">
+    <button class="primary-btn" id="selectRegionBtn">Select Region</button>
+    <div class="region-info" id="regionInfo"></div>
+    <button class="secondary-btn" id="clearRegionsBtn" disabled>Clear All</button>
+    <button class="primary-btn" id="toggleRegionBlurBtn" disabled>Activate Blur</button>
+  </div>
+  
   <div class="settings-link">
     <a href="#" id="settingsLink">⚙️ Settings</a>
   </div>
+  
   <script src="popup.js"></script>
 </body>
 </html>
