@@ -103,12 +103,41 @@ function startRegionSelection() {
   appState.mode = 'regions';
   
   createCanvasOverlay();
+  
+  // Ensure canvas is ready for interaction
+  if (!canvas) {
+    console.error('Canvas not created properly');
+    return;
+  }
+  
   document.body.style.cursor = 'crosshair';
   
   // Enable pointer events on canvas for selection
   canvas.style.pointerEvents = 'all';
+  console.log('Canvas pointer events enabled');
   
+  // Remove any existing event listeners to prevent duplicates
+  canvas.removeEventListener('mousedown', handleSelectionStart);
   canvas.addEventListener('mousedown', handleSelectionStart);
+  console.log('Selection mouse listener added');
+}
+
+function exitRegionSelection() {
+  console.log('Exiting region selection mode');
+  
+  document.body.style.cursor = 'default';
+  
+  if (canvas) {
+    canvas.style.pointerEvents = 'none';
+    canvas.removeEventListener('mousedown', handleSelectionStart);
+    canvas.removeEventListener('mousemove', handleSelectionDraw);
+  }
+  
+  // Clean up any current selection
+  isDrawing = false;
+  currentSelection = null;
+  
+  console.log('Region selection mode exited');
 }
 
 function handleSelectionStart(e) {
@@ -149,7 +178,7 @@ function handleSelectionEnd() {
   if (!isDrawing || !currentSelection) return;
   
   isDrawing = false;
-  document.body.style.cursor = 'default';
+  document.body.style.cursor = 'crosshair'; // Keep crosshair for more selections
   
   // Convert viewport coordinates to document coordinates for storage
   const docCoords = viewportToDocument(currentSelection.x, currentSelection.y);
@@ -165,10 +194,11 @@ function handleSelectionEnd() {
   appState.regions.push(region);
   console.log('Region added:', region);
   
-  // Clean up
+  // Clean up current selection drawing
   canvas.removeEventListener('mousemove', handleSelectionDraw);
-  canvas.removeEventListener('mousedown', handleSelectionStart);
-  canvas.style.pointerEvents = 'none';
+  
+  // Keep canvas interactive for more selections
+  // Don't remove mousedown listener or disable pointer events
   
   currentSelection = null;
   
@@ -279,12 +309,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     clearAllRegions();
     sendResponse({ success: true });
   } else if (message.action === 'setMode') {
+    // Clean up current mode first
+    if (appState.mode === 'regions') {
+      exitRegionSelection();
+    }
+    
     appState.mode = message.mode;
+    
     if (appState.mode === 'full-page') {
       removeCanvasOverlay();
     } else if (appState.mode === 'regions') {
       createCanvasOverlay();
-      renderRegions();
+      if (appState.isActive) {
+        renderRegions();
+      }
     }
     sendResponse({ success: true });
   }
