@@ -135,8 +135,19 @@
     <button class="primary-btn" id="toggleRegionBlurBtn" disabled>Activate Blur</button>
   </div>
   
+  <!-- Debug Panel -->
+  <div id="debugPanel" style="display: none; margin-top: 12px; padding-top: 8px; border-top: 2px solid #ff6b6b;">
+    <div style="font-size: 11px; font-weight: bold; color: #ff6b6b; margin-bottom: 6px;">🐛 DEBUG MODE</div>
+    <button class="secondary-btn" id="toggleVisualDebug" style="margin-bottom: 4px;">Toggle Visual Canvas</button>
+    <button class="secondary-btn" id="getDebugInfo" style="margin-bottom: 4px;">Log Debug Info</button>
+    <button class="secondary-btn" id="testCanvasClick" style="margin-bottom: 4px;">Test Canvas Click</button>
+    <div style="font-size: 10px; color: #666; text-align: center;">Debug tools for development</div>
+  </div>
+
   <div class="settings-link">
     <a href="#" id="settingsLink">⚙️ Settings</a>
+    <span style="margin-left: 8px;">|</span>
+    <a href="#" id="debugToggle" style="margin-left: 8px;">🐛 Debug</a>
   </div>
   
   <script src="popup.js"></script>

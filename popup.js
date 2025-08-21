@@ -156,6 +156,42 @@ document.getElementById('settingsLink').addEventListener('click', (e) => {
   chrome.runtime.openOptionsPage();
 });
 
+// Debug controls
+document.getElementById('debugToggle').addEventListener('click', (e) => {
+  e.preventDefault();
+  const debugPanel = document.getElementById('debugPanel');
+  const isVisible = debugPanel.style.display !== 'none';
+  debugPanel.style.display = isVisible ? 'none' : 'block';
+});
+
+document.getElementById('toggleVisualDebug').addEventListener('click', () => {
+  sendMessage('toggleDebugVisual');
+});
+
+document.getElementById('getDebugInfo').addEventListener('click', () => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.tabs.sendMessage(tabs[0].id, { action: 'debugInfo' }, (response) => {
+      console.log('🐛 DEBUG INFO:', response);
+      
+      if (response) {
+        // Also log to content script console
+        chrome.tabs.sendMessage(tabs[0].id, { 
+          action: 'log',
+          message: 'Debug info from popup',
+          data: response
+        });
+      }
+    });
+  });
+});
+
+document.getElementById('testCanvasClick').addEventListener('click', () => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.tabs.sendMessage(tabs[0].id, { action: 'testCanvasClick' });
+  });
+  window.close(); // Close popup so user can see the test
+});
+
 // --- Initialize ---
 document.addEventListener('DOMContentLoaded', () => {
   refreshState();
