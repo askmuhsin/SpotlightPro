@@ -124,86 +124,161 @@ function refreshState() {
   });
 }
 
-// --- Event Listeners ---
-
-// Mode switching
-document.getElementById('fullPageMode').addEventListener('click', () => {
-  sendMessage('setMode', { mode: 'full-page' });
-});
-
-document.getElementById('regionsMode').addEventListener('click', () => {
-  sendMessage('setMode', { mode: 'regions' });
-});
-
-// Full page controls
-document.getElementById('toggleBlurBtn').addEventListener('click', () => {
-  sendMessage('toggleBlur');
-});
-
-// Region controls
-document.getElementById('selectRegionBtn').addEventListener('click', () => {
-  console.log('🔍 POPUP: Select Region button clicked');
-  sendMessage('startSelection');
-  console.log('🔍 POPUP: startSelection message sent, closing popup');
-  // Close popup so user can interact with page
-  window.close();
-});
-
-document.getElementById('clearRegionsBtn').addEventListener('click', () => {
-  sendMessage('clearRegions');
-});
-
-document.getElementById('toggleRegionBlurBtn').addEventListener('click', () => {
-  sendMessage('toggleBlur');
-});
-
-// Settings link
-document.getElementById('settingsLink').addEventListener('click', (e) => {
-  e.preventDefault();
-  chrome.runtime.openOptionsPage();
-});
-
-// Debug controls
-document.getElementById('debugToggle').addEventListener('click', (e) => {
-  e.preventDefault();
-  const debugPanel = document.getElementById('debugPanel');
-  const isVisible = debugPanel.style.display !== 'none';
-  debugPanel.style.display = isVisible ? 'none' : 'block';
-});
-
-document.getElementById('toggleVisualDebug').addEventListener('click', () => {
-  sendMessage('toggleDebugVisual');
-});
-
-document.getElementById('getDebugInfo').addEventListener('click', () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, { action: 'debugInfo' }, (response) => {
-      console.log('🐛 DEBUG INFO:', response);
-      
-      if (response) {
-        // Also log to content script console
-        chrome.tabs.sendMessage(tabs[0].id, { 
-          action: 'log',
-          message: 'Debug info from popup',
-          data: response
-        });
-      }
+// --- Event Delegation ---
+// Single event handler for all buttons - immune to DOM re-rendering
+document.addEventListener('click', (event) => {
+  // Debug logging to verify event delegation is working
+  if (event.target.tagName === 'BUTTON') {
+    console.log('🔍 POPUP: Button clicked via delegation:', event.target.id);
+  }
+  
+  const target = event.target;
+  
+  // Mode switching
+  if (target.id === 'fullPageMode') {
+    console.log('🔍 POPUP: Full Page mode button clicked');
+    sendMessage('setMode', { mode: 'full-page' });
+    return;
+  }
+  
+  if (target.id === 'regionsMode') {
+    console.log('🔍 POPUP: Regions mode button clicked');
+    sendMessage('setMode', { mode: 'regions' });
+    return;
+  }
+  
+  // Full page controls
+  if (target.id === 'toggleBlurBtn') {
+    console.log('🔍 POPUP: Toggle Blur button clicked');
+    sendMessage('toggleBlur');
+    return;
+  }
+  
+  // Region controls
+  if (target.id === 'selectRegionBtn') {
+    console.log('🔍 POPUP: Select Region button clicked (DELEGATION WORKING!)');
+    sendMessage('startSelection');
+    console.log('🔍 POPUP: startSelection message sent, closing popup');
+    window.close();
+    return;
+  }
+  
+  if (target.id === 'clearRegionsBtn') {
+    console.log('🔍 POPUP: Clear Regions button clicked');
+    sendMessage('clearRegions');
+    return;
+  }
+  
+  if (target.id === 'toggleRegionBlurBtn') {
+    console.log('🔍 POPUP: Toggle Region Blur button clicked');
+    sendMessage('toggleBlur');
+    return;
+  }
+  
+  // Debug controls
+  if (target.id === 'toggleVisualDebug') {
+    console.log('🔍 POPUP: Toggle Visual Debug button clicked');
+    sendMessage('toggleDebugVisual');
+    return;
+  }
+  
+  if (target.id === 'getDebugInfo') {
+    console.log('🔍 POPUP: Get Debug Info button clicked');
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: 'debugInfo' }, (response) => {
+        console.log('🐛 DEBUG INFO:', response);
+        
+        if (response) {
+          chrome.tabs.sendMessage(tabs[0].id, { 
+            action: 'log',
+            message: 'Debug info from popup',
+            data: response
+          });
+        }
+      });
     });
-  });
+    return;
+  }
+  
+  if (target.id === 'testCanvasClick') {
+    console.log('🔍 POPUP: Test Canvas Click button clicked');
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: 'testCanvasClick' });
+    });
+    window.close();
+    return;
+  }
+  
+  // Links and special handlers
+  if (target.id === 'settingsLink') {
+    console.log('🔍 POPUP: Settings link clicked');
+    event.preventDefault();
+    chrome.runtime.openOptionsPage();
+    return;
+  }
+  
+  if (target.id === 'debugToggle') {
+    console.log('🔍 POPUP: Debug toggle clicked');
+    event.preventDefault();
+    const debugPanel = document.getElementById('debugPanel');
+    const isVisible = debugPanel.style.display !== 'none';
+    debugPanel.style.display = isVisible ? 'none' : 'block';
+    return;
+  }
 });
 
-document.getElementById('testCanvasClick').addEventListener('click', () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, { action: 'testCanvasClick' });
+// --- Diagnostic Functions ---
+function diagnoseNodeReplacement() {
+  // Check for duplicate IDs (Ryan #2's suggestion)
+  const duplicateTests = [
+    'selectRegionBtn', 'toggleBlurBtn', 'fullPageMode', 'regionsMode'
+  ];
+  
+  duplicateTests.forEach(id => {
+    const elements = document.querySelectorAll(`#${id}`);
+    if (elements.length > 1) {
+      console.error(`🔍 POPUP: DUPLICATE ID FOUND: ${id} appears ${elements.length} times!`);
+    } else if (elements.length === 1) {
+      console.log(`🔍 POPUP: ID '${id}' is unique ✓`);
+    } else {
+      console.log(`🔍 POPUP: ID '${id}' not found`);
+    }
   });
-  window.close(); // Close popup so user can see the test
-});
+  
+  // Store reference to selectRegionBtn to test node persistence
+  window.debugSelectBtn = document.getElementById('selectRegionBtn');
+  if (window.debugSelectBtn) {
+    console.log('🔍 POPUP: selectRegionBtn reference stored for persistence testing');
+  }
+}
+
+function checkNodePersistence() {
+  if (window.debugSelectBtn) {
+    console.log('🔍 POPUP: selectRegionBtn still connected to DOM:', window.debugSelectBtn.isConnected);
+    
+    const currentBtn = document.getElementById('selectRegionBtn');
+    const isSameNode = window.debugSelectBtn === currentBtn;
+    console.log('🔍 POPUP: selectRegionBtn is same node:', isSameNode);
+    
+    if (!isSameNode && currentBtn) {
+      console.error('🔍 POPUP: NODE REPLACEMENT DETECTED! selectRegionBtn was replaced during UI update');
+    }
+  }
+}
 
 // --- Initialize ---
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🔍 POPUP: DOM loaded, checking elements');
-  console.log('🔍 POPUP: selectRegionBtn exists:', !!document.getElementById('selectRegionBtn'));
-  console.log('🔍 POPUP: fullPageMode exists:', !!document.getElementById('fullPageMode'));
-  console.log('🔍 POPUP: regionsMode exists:', !!document.getElementById('regionsMode'));
+  
+  // Run diagnostic tests
+  diagnoseNodeReplacement();
+  
+  console.log('🔍 POPUP: Event delegation initialized - all buttons should work regardless of DOM changes');
+  
   refreshState();
+  
+  // Check node persistence after refreshState
+  setTimeout(() => {
+    checkNodePersistence();
+  }, 100);
 });

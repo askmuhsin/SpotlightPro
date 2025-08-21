@@ -115,8 +115,8 @@
   
   <!-- Mode Selector -->
   <div class="mode-selector">
-    <button class="mode-btn active" id="fullPageMode">Full Page</button>
-    <button class="mode-btn" id="regionsMode">Regions</button>
+    <button type="button" class="mode-btn active" id="fullPageMode">Full Page</button>
+    <button type="button" class="mode-btn" id="regionsMode">Regions</button>
   </div>
   
   <!-- Status -->
@@ -124,23 +124,23 @@
   
   <!-- Full Page Controls -->
   <div id="fullPageControls">
-    <button class="primary-btn" id="toggleBlurBtn">Toggle Blur</button>
+    <button type="button" class="primary-btn" id="toggleBlurBtn">Toggle Blur</button>
   </div>
   
   <!-- Region Controls -->
   <div id="regionControls" style="display: none;">
-    <button class="primary-btn" id="selectRegionBtn">Select Region</button>
+    <button type="button" class="primary-btn" id="selectRegionBtn">Select Region</button>
     <div class="region-info" id="regionInfo"></div>
-    <button class="secondary-btn" id="clearRegionsBtn" disabled>Clear All</button>
-    <button class="primary-btn" id="toggleRegionBlurBtn" disabled>Activate Blur</button>
+    <button type="button" class="secondary-btn" id="clearRegionsBtn" disabled>Clear All</button>
+    <button type="button" class="primary-btn" id="toggleRegionBlurBtn" disabled>Activate Blur</button>
   </div>
   
   <!-- Debug Panel -->
   <div id="debugPanel" style="display: none; margin-top: 12px; padding-top: 8px; border-top: 2px solid #ff6b6b;">
     <div style="font-size: 11px; font-weight: bold; color: #ff6b6b; margin-bottom: 6px;">🐛 DEBUG MODE</div>
-    <button class="secondary-btn" id="toggleVisualDebug" style="margin-bottom: 4px;">Toggle Visual Canvas</button>
-    <button class="secondary-btn" id="getDebugInfo" style="margin-bottom: 4px;">Log Debug Info</button>
-    <button class="secondary-btn" id="testCanvasClick" style="margin-bottom: 4px;">Test Canvas Click</button>
+    <button type="button" class="secondary-btn" id="toggleVisualDebug" style="margin-bottom: 4px;">Toggle Visual Canvas</button>
+    <button type="button" class="secondary-btn" id="getDebugInfo" style="margin-bottom: 4px;">Log Debug Info</button>
+    <button type="button" class="secondary-btn" id="testCanvasClick" style="margin-bottom: 4px;">Test Canvas Click</button>
     <div style="font-size: 10px; color: #666; text-align: center;">Debug tools for development</div>
   </div>
 
