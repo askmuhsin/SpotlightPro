@@ -94,12 +94,17 @@ function updateRegionControls(state) {
 
 // --- Event Handlers ---
 function sendMessage(action, data = {}) {
+  console.log('🔍 POPUP: Sending message:', action, data);
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    console.log('🔍 POPUP: Active tab found:', tabs[0]?.id);
     chrome.tabs.sendMessage(tabs[0].id, { action, ...data }, (response) => {
       if (chrome.runtime.lastError) {
-        console.error('Error:', chrome.runtime.lastError.message);
+        console.error('🔍 POPUP: Error sending message:', chrome.runtime.lastError.message);
       } else if (response) {
+        console.log('🔍 POPUP: Response received:', response);
         refreshState();
+      } else {
+        console.log('🔍 POPUP: No response received');
       }
     });
   });
@@ -137,7 +142,9 @@ document.getElementById('toggleBlurBtn').addEventListener('click', () => {
 
 // Region controls
 document.getElementById('selectRegionBtn').addEventListener('click', () => {
+  console.log('🔍 POPUP: Select Region button clicked');
   sendMessage('startSelection');
+  console.log('🔍 POPUP: startSelection message sent, closing popup');
   // Close popup so user can interact with page
   window.close();
 });
@@ -194,5 +201,9 @@ document.getElementById('testCanvasClick').addEventListener('click', () => {
 
 // --- Initialize ---
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('🔍 POPUP: DOM loaded, checking elements');
+  console.log('🔍 POPUP: selectRegionBtn exists:', !!document.getElementById('selectRegionBtn'));
+  console.log('🔍 POPUP: fullPageMode exists:', !!document.getElementById('fullPageMode'));
+  console.log('🔍 POPUP: regionsMode exists:', !!document.getElementById('regionsMode'));
   refreshState();
 });

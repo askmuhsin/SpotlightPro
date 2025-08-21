@@ -155,6 +155,9 @@ function createCanvasOverlay() {
   debugLog('CANVAS', 'Canvas overlay created successfully');
   debugCanvasInfo(canvas);
   
+  // Add window event listeners for canvas management
+  addWindowEventListeners();
+  
   // Test canvas interactivity
   testCanvasInteractivity();
   
@@ -208,6 +211,9 @@ function testCanvasInteractivity() {
 
 function removeCanvasOverlay() {
   debugLog('CANVAS', 'removeCanvasOverlay() called');
+  
+  // Remove window event listeners first to prevent null canvas errors
+  removeWindowEventListeners();
   
   if (!canvas) {
     debugLog('CANVAS', 'No canvas to remove');
@@ -308,38 +314,10 @@ function startRegionSelection() {
   
   // Remove any existing event listeners to prevent duplicates
   canvas.removeEventListener('mousedown', handleSelectionStart);
+  canvas.removeEventListener('mousemove', handleSelectionDraw);
   
-  // Add comprehensive event debugging
-  const debugMouseHandler = (e) => {
-    debugLog('EVENTS', 'Mouse event detected on canvas', {
-      type: e.type,
-      button: e.button,
-      buttons: e.buttons,
-      clientX: e.clientX,
-      clientY: e.clientY,
-      target: e.target.tagName,
-      targetId: e.target.id,
-      pointerEvents: e.target.style.pointerEvents,
-      zIndex: e.target.style.zIndex
-    });
-    
-    // Call the actual handler
-    handleSelectionStart(e);
-  };
-  
-  canvas.addEventListener('mousedown', debugMouseHandler);
-  
-  // Also add mousemove and mouseup debugging
-  const debugMoveHandler = (e) => {
-    if (isDrawing) {
-      debugLog('EVENTS', 'Mouse move during drawing', {
-        clientX: e.clientX,
-        clientY: e.clientY
-      });
-    }
-  };
-  
-  canvas.addEventListener('mousemove', debugMoveHandler);
+  // Add selection event listeners
+  canvas.addEventListener('mousedown', handleSelectionStart);
   
   debugLog('EVENTS', 'Selection event listeners added');
   
@@ -512,16 +490,38 @@ function clearAllRegions() {
 }
 
 // --- Event Listeners ---
+let windowResizeHandler = null;
+let windowScrollHandler = null;
 
-// Handle window resize and scroll
-window.addEventListener('resize', () => {
-  updateCanvasSize();
-  renderRegions();
-});
+function addWindowEventListeners() {
+  // Remove existing listeners first
+  removeWindowEventListeners();
+  
+  windowResizeHandler = () => {
+    updateCanvasSize();
+    renderRegions();
+  };
+  
+  windowScrollHandler = () => {
+    renderRegions();
+  };
+  
+  window.addEventListener('resize', windowResizeHandler);
+  window.addEventListener('scroll', windowScrollHandler);
+  debugLog('EVENTS', 'Window event listeners added');
+}
 
-window.addEventListener('scroll', () => {
-  renderRegions();
-});
+function removeWindowEventListeners() {
+  if (windowResizeHandler) {
+    window.removeEventListener('resize', windowResizeHandler);
+    windowResizeHandler = null;
+  }
+  if (windowScrollHandler) {
+    window.removeEventListener('scroll', windowScrollHandler);
+    windowScrollHandler = null;
+  }
+  debugLog('EVENTS', 'Window event listeners removed');
+}
 
 // Keyboard shortcut for full-page blur
 document.addEventListener('keydown', (event) => {
