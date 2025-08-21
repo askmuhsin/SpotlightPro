@@ -304,6 +304,7 @@ function startRegionSelection() {
   // Enable pointer events on canvas for selection
   debugLog('EVENTS', 'Enabling pointer events on canvas');
   canvas.style.pointerEvents = 'all';
+  canvas.style.cursor = 'crosshair';
   
   // Verify pointer events were set
   const computedPointerEvents = window.getComputedStyle(canvas).pointerEvents;
@@ -336,6 +337,7 @@ function exitRegionSelection() {
   
   if (canvas) {
     canvas.style.pointerEvents = 'none';
+    canvas.style.cursor = '';
     canvas.removeEventListener('mousedown', handleSelectionStart);
     canvas.removeEventListener('mousemove', handleSelectionDraw);
   }
