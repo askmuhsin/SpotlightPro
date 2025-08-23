@@ -1,41 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <style>
-    body {
-      width: 180px;
-      padding: 12px;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 8px;
-      font-weight: bold;
-      color: #333;
-    }
-    .instructions {
-      font-size: 11px;
-      color: #666;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-    button {
-      width: 100%;
-      padding: 8px;
-      font-size: 14px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-bottom: 8px;
-      color: white;
-    }
-  </style>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="design-system.css">
 </head>
 <body>
-  <div class="header">SpotlightPro</div>
-  <div class="instructions">Use Ctrl+Shift+B or click below</div>
-  <button id="blurBtn">Blur Page</button>
+  <div class="glass-panel">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="header-top">
+        <h1 class="header-title">Spotlight Pro</h1>
+        <a href="#" class="settings-link" id="settingsLink">Settings</a>
+      </div>
+      <p class="header-subtitle">Focus controls</p>
+    </header>
+
+    <!-- Mode Controls -->
+    <section class="button-group">
+      <button class="mode-button primary" id="fullScreenBtn" data-feature="fullScreen">
+        <span class="button-icon">🖥️</span>
+        <span class="button-text">Full-Screen</span>
+        <span class="button-shortcut">⌘⇧B</span>
+      </button>
+      
+      <button class="mode-button disabled" id="selectBtn" data-feature="select">
+        <span class="button-icon">🎯</span>
+        <span class="button-text">Select</span>
+        <span class="button-shortcut">⌘⇧S</span>
+      </button>
+      
+      <button class="mode-button disabled" id="snapBtn" data-feature="snap">
+        <span class="button-icon">📷</span>
+        <span class="button-text">Snap</span>
+        <span class="button-shortcut">⌘⇧E</span>
+      </button>
+    </section>
+
+    <!-- Secondary Controls -->
+    <section class="secondary-controls">
+      <button class="secondary-button disabled" id="editBtn" data-feature="edit">
+        ✏️ Edit/Expand
+      </button>
+      <button class="secondary-button disabled" id="clearBtn" data-feature="clear">
+        ⭕ Clear All
+      </button>
+    </section>
+
+    <!-- Mask Controls -->
+    <section class="mask-section">
+      <h3 class="section-label">Mask</h3>
+      <div class="segmented-control">
+        <div class="segment">
+          <input type="radio" name="maskType" id="shadeRadio" class="segment-input" value="shade" disabled>
+          <label for="shadeRadio" class="segment-label">
+            <div class="mask-preview shade"></div>
+            Shade
+          </label>
+        </div>
+        
+        <div class="segment">
+          <input type="radio" name="maskType" id="blurRadio" class="segment-input" value="blur" checked>
+          <label for="blurRadio" class="segment-label">
+            <div class="mask-preview blur"></div>
+            Blur
+          </label>
+        </div>
+        
+        <div class="segment">
+          <input type="radio" name="maskType" id="grainRadio" class="segment-input" value="grain" disabled>
+          <label for="grainRadio" class="segment-label">
+            <div class="mask-preview grain"></div>
+            Grain
+          </label>
+        </div>
+        
+        <div class="segment">
+          <input type="radio" name="maskType" id="blackoutRadio" class="segment-input" value="blackout" disabled>
+          <label for="blackoutRadio" class="segment-label">
+            <div class="mask-preview blackout"></div>
+            Blackout
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer Controls -->
+    <footer class="footer-controls">
+      <div class="persist-control">
+        <label class="persist-label disabled" for="persistToggle">Persist on Site</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="persistToggle" class="toggle-input" disabled>
+          <div class="toggle-slider"></div>
+        </div>
+      </div>
+      
+      <div class="footer-links">
+        <a href="#" class="footer-link disabled" id="docsLink">Docs</a>
+        <span class="key-hint">⌘⇧B • ⌘⇧S • ⌘⇧E</span>
+      </div>
+    </footer>
+  </div>
+
   <script src="popup.js"></script>
 </body>
 </html>
