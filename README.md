@@ -31,6 +31,9 @@ Select what matters; dim, blur, or blackout the rest. Clean surface; sharper att
 
 ## Changelog
 
+### v1.2.0
+Complete popup redesign with Apple liquid crystal glass morphism UI. Added modular design system, beautiful 360px panel with translucent background, mode controls (Full-Screen active, Select/Snap disabled), mask style previews (Blur active, Shade/Grain/Blackout disabled), and settings integration. Ultra-minimal codebase cleanup eliminated messaging complexity in favor of direct chrome.scripting.executeScript. Added extension icon and proper options page.
+
 ### v1.1.9
 Fixed critical region selection bug with event delegation pattern. Replaced individual button event listeners with document-level click handler to prevent DOM replacement issues. Added comprehensive debugging system and type="button" attributes for popup buttons.
 
