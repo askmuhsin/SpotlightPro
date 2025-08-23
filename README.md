@@ -31,6 +31,9 @@ Select what matters; dim, blur, or blackout the rest. Clean surface; sharper att
 
 ## Changelog
 
+### v1.1.9
+Fixed critical region selection bug with event delegation pattern. Replaced individual button event listeners with document-level click handler to prevent DOM replacement issues. Added comprehensive debugging system and type="button" attributes for popup buttons.
+
 ### v1.1.5
 Production-ready foundation with canvas-based architecture. Dual-mode interface with Full Page/Regions toggle. Canvas overlay eliminates DOM conflicts and scroll issues. Proper coordinate system, visual selection feedback, and region management. Addresses technical debt from previous implementation.
 

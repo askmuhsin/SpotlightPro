@@ -3,153 +3,39 @@
 <head>
   <style>
     body {
-      width: 220px;
-      padding: 14px;
+      width: 180px;
+      padding: 12px;
       font-family: Arial, sans-serif;
       font-size: 13px;
     }
     .header {
       text-align: center;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       font-weight: bold;
       color: #333;
     }
-    
-    /* Mode Selector */
-    .mode-selector {
-      display: flex;
-      margin-bottom: 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .mode-btn {
-      flex: 1;
-      padding: 6px 8px;
-      font-size: 11px;
-      border: none;
-      background: #f5f5f5;
-      cursor: pointer;
-      margin: 0;
-    }
-    .mode-btn.active {
-      background: #007cba;
-      color: white;
-    }
-    
-    /* Status */
-    .status {
+    .instructions {
       font-size: 11px;
       color: #666;
-      text-align: center;
       margin-bottom: 10px;
-      min-height: 16px;
+      text-align: center;
     }
-    .status.active {
-      color: #4CAF50;
-      font-weight: bold;
-    }
-    
-    /* Buttons */
     button {
       width: 100%;
       padding: 8px;
-      font-size: 13px;
+      font-size: 14px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      margin-bottom: 6px;
-    }
-    
-    .primary-btn {
-      background: #007cba;
-      color: white;
-    }
-    .primary-btn:hover {
-      background: #005a87;
-    }
-    .primary-btn.active {
-      background: #4CAF50;
-    }
-    
-    .secondary-btn {
-      background: #f0f0f0;
-      color: #333;
-      border: 1px solid #ddd;
-    }
-    .secondary-btn:hover {
-      background: #e0e0e0;
-    }
-    .secondary-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    /* Region Info */
-    .region-info {
-      font-size: 11px;
-      color: #666;
-      text-align: center;
       margin-bottom: 8px;
-      min-height: 14px;
-    }
-    
-    .settings-link {
-      text-align: center;
-      font-size: 11px;
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid #eee;
-    }
-    .settings-link a {
-      color: #666;
-      text-decoration: none;
-    }
-    .settings-link a:hover {
-      text-decoration: underline;
+      color: white;
     }
   </style>
 </head>
 <body>
   <div class="header">SpotlightPro</div>
-  
-  <!-- Mode Selector -->
-  <div class="mode-selector">
-    <button type="button" class="mode-btn active" id="fullPageMode">Full Page</button>
-    <button type="button" class="mode-btn" id="regionsMode">Regions</button>
-  </div>
-  
-  <!-- Status -->
-  <div class="status" id="status">Ready</div>
-  
-  <!-- Full Page Controls -->
-  <div id="fullPageControls">
-    <button type="button" class="primary-btn" id="toggleBlurBtn">Toggle Blur</button>
-  </div>
-  
-  <!-- Region Controls -->
-  <div id="regionControls" style="display: none;">
-    <button type="button" class="primary-btn" id="selectRegionBtn">Select Region</button>
-    <div class="region-info" id="regionInfo"></div>
-    <button type="button" class="secondary-btn" id="clearRegionsBtn" disabled>Clear All</button>
-    <button type="button" class="primary-btn" id="toggleRegionBlurBtn" disabled>Activate Blur</button>
-  </div>
-  
-  <!-- Debug Panel -->
-  <div id="debugPanel" style="display: none; margin-top: 12px; padding-top: 8px; border-top: 2px solid #ff6b6b;">
-    <div style="font-size: 11px; font-weight: bold; color: #ff6b6b; margin-bottom: 6px;">🐛 DEBUG MODE</div>
-    <button type="button" class="secondary-btn" id="toggleVisualDebug" style="margin-bottom: 4px;">Toggle Visual Canvas</button>
-    <button type="button" class="secondary-btn" id="getDebugInfo" style="margin-bottom: 4px;">Log Debug Info</button>
-    <button type="button" class="secondary-btn" id="testCanvasClick" style="margin-bottom: 4px;">Test Canvas Click</button>
-    <div style="font-size: 10px; color: #666; text-align: center;">Debug tools for development</div>
-  </div>
-
-  <div class="settings-link">
-    <a href="#" id="settingsLink">⚙️ Settings</a>
-    <span style="margin-left: 8px;">|</span>
-    <a href="#" id="debugToggle" style="margin-left: 8px;">🐛 Debug</a>
-  </div>
-  
+  <div class="instructions">Use Ctrl+Shift+B or click below</div>
+  <button id="blurBtn">Blur Page</button>
   <script src="popup.js"></script>
 </body>
 </html>
