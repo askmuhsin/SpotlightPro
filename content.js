@@ -8,4 +8,10 @@ document.addEventListener('keydown', (event) => {
     event.preventDefault();
     document.body.style.filter = document.body.style.filter ? '' : 'blur(5px)';
   }
+
+  // Snap mode toggle (Cmd/Ctrl + Shift + V)
+  if (correctModifier && event.shiftKey && event.code === 'KeyV') {
+    event.preventDefault();
+    chrome.runtime.sendMessage({ action: "startSnapMode" });
+  }
 });

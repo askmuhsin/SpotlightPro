@@ -31,6 +31,9 @@ Select what matters; dim, blur, or blackout the rest. Clean surface; sharper att
 
 ## Changelog
 
+### v1.2.3
+Added a keyboard shortcut (`⌘⇧V` or `Ctrl+Shift+V`) to activate Snap mode, providing a faster alternative to clicking the button in the popup. This required adding a background script to handle the command.
+
 ### v1.2.2
 Implemented the core "Snap" feature. Users can now activate snap mode, which changes the cursor to a crosshair, highlights elements on hover with a blue outline, and applies a blur effect to the selected element upon clicking. The mode automatically exits after selection.
 
