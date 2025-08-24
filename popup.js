@@ -11,8 +11,8 @@ const FEATURES = {
     handler: null 
   },
   snap: { 
-    enabled: false, 
-    handler: null 
+    enabled: true, 
+    handler: startSnapMode 
   },
   edit: { 
     enabled: false, 
@@ -28,57 +28,126 @@ const FEATURES = {
   }
 };
 
-// Core blur functionality (preserved from previous version)
+// Core blur functionality
 function toggleFullScreenBlur() {
-  console.log('toggleFullScreenBlur() called');
-  
   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    console.log('Tabs query result:', tabs);
-    
-    if (chrome.runtime.lastError) {
-      console.error('Error querying tabs:', chrome.runtime.lastError);
+    if (chrome.runtime.lastError || !tabs || tabs.length === 0) {
+      console.error('Could not query active tab.');
       return;
     }
-    
-    if (!tabs || tabs.length === 0) {
-      console.error('No active tab found');
-      return;
-    }
-    
-    console.log('Executing script on tab:', tabs[0].id);
-    
     chrome.scripting.executeScript({
       target: {tabId: tabs[0].id},
       func: () => {
-        console.log('Script executing on page...');
         const currentFilter = document.body.style.filter;
-        console.log('Current filter:', currentFilter);
-        
-        if (currentFilter) {
-          document.body.style.filter = '';
-          console.log('Blur removed');
-        } else {
-          document.body.style.filter = 'blur(5px)';
-          console.log('Blur applied');
-        }
-      }
-    }, (results) => {
-      if (chrome.runtime.lastError) {
-        console.error('Error executing script:', chrome.runtime.lastError);
-      } else {
-        console.log('Script execution completed:', results);
+        document.body.style.filter = currentFilter ? '' : 'blur(5px)';
       }
     });
   });
 }
 
-// Clear all effects
-function clearAllEffects() {
+// Start snap mode
+function startSnapMode() {
   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    if (chrome.runtime.lastError || !tabs || tabs.length === 0) {
+      console.error('Could not query active tab.');
+      return;
+    }
     chrome.scripting.executeScript({
       target: {tabId: tabs[0].id},
       func: () => {
-        document.body.style.filter = '';
+        if (!window.spotlightSnapMode) {
+          window.spotlightSnapMode = {
+            active: false,
+            originalCursor: null,
+            escKeyListener: null,
+            hoverListener: null,
+            currentHovered: null
+          };
+        }
+        
+        const snapMode = window.spotlightSnapMode;
+        
+        function handleHover(event) {
+          const target = event.target;
+          if (!target || target === document.body || target === document.documentElement) {
+            return;
+          }
+          
+          if (target === snapMode.currentHovered) {
+            return;
+          }
+
+          // Restore previous element's outline
+          if (snapMode.currentHovered && snapMode.currentHovered.element) {
+            snapMode.currentHovered.element.style.outline = snapMode.currentHovered.originalOutline || '';
+          }
+          
+          // Store new element and its outline
+          snapMode.currentHovered = {
+            element: target,
+            originalOutline: target.style.outline
+          };
+          
+          // Apply new outline
+          target.style.outline = '2px solid #1976d2';
+          target.style.outlineOffset = '-2px';
+          
+          console.log('Spotlight Snap Hover:', target);
+        }
+
+        function enableSnapMode() {
+          if (snapMode.active) return;
+          snapMode.originalCursor = document.body.style.cursor;
+          document.body.style.cursor = 'crosshair';
+          snapMode.active = true;
+
+          // Add ESC listener
+          snapMode.escKeyListener = (event) => {
+            if (event.code === 'Escape' && snapMode.active) {
+              event.preventDefault();
+              disableSnapMode();
+            }
+          };
+          document.addEventListener('keydown', snapMode.escKeyListener, true);
+
+          // Add hover listener
+          snapMode.hoverListener = handleHover;
+          document.addEventListener('mouseover', snapMode.hoverListener, true);
+        }
+        
+        function disableSnapMode() {
+          if (!snapMode.active) return;
+
+          // Restore last hovered element's outline
+          if (snapMode.currentHovered && snapMode.currentHovered.element) {
+            snapMode.currentHovered.element.style.outline = snapMode.currentHovered.originalOutline || '';
+          }
+
+          document.body.style.cursor = snapMode.originalCursor || '';
+          snapMode.active = false;
+          snapMode.originalCursor = null;
+
+          // Remove ESC listener
+          if (snapMode.escKeyListener) {
+            document.removeEventListener('keydown', snapMode.escKeyListener, true);
+            snapMode.escKeyListener = null;
+          }
+
+          // Remove hover listener
+          if (snapMode.hoverListener) {
+            document.removeEventListener('mouseover', snapMode.hoverListener, true);
+            snapMode.hoverListener = null;
+          }
+          snapMode.currentHovered = null;
+        }
+        
+        enableSnapMode();
+      }
+    }, () => {
+      if (chrome.runtime.lastError) {
+        console.error('Error executing snap script:', chrome.runtime.lastError);
+      } else {
+        window.close();
       }
     });
   });
@@ -88,68 +157,6 @@ function clearAllEffects() {
 function openSettings() {
   chrome.runtime.openOptionsPage();
 }
-
-// STEP 1: Check if script loads
-console.log('🔍 STEP 1: SpotlightPro popup script loading...');
-
-// STEP 2: Wait for DOM to be ready (just to be absolutely sure)
-setTimeout(() => {
-  console.log('🔍 STEP 2: DOM check after timeout');
-  
-  // STEP 3: Direct element check
-  const fullScreenBtn = document.getElementById('fullScreenBtn');
-  console.log('🔍 STEP 3: Direct fullScreenBtn element:', fullScreenBtn);
-  
-  if (fullScreenBtn) {
-    console.log('🔍 STEP 3a: Element found, checking properties...');
-    console.log('- Element tagName:', fullScreenBtn.tagName);
-    console.log('- Element id:', fullScreenBtn.id);
-    console.log('- Element classes:', fullScreenBtn.className);
-    console.log('- Element disabled:', fullScreenBtn.disabled);
-    console.log('- Element style.pointerEvents:', fullScreenBtn.style.pointerEvents);
-    
-    // STEP 4: Add direct click listener with maximum debugging
-    fullScreenBtn.addEventListener('click', (e) => {
-      console.log('🚀 STEP 4: BUTTON CLICKED!!! Event:', e);
-      console.log('🚀 Event type:', e.type);
-      console.log('🚀 Event target:', e.target);
-      console.log('🚀 Event currentTarget:', e.currentTarget);
-      
-      e.preventDefault();
-      e.stopPropagation();
-      
-      try {
-        console.log('🚀 About to call toggleFullScreenBlur...');
-        toggleFullScreenBlur();
-        console.log('🚀 toggleFullScreenBlur called successfully');
-      } catch (error) {
-        console.error('🚀 ERROR calling toggleFullScreenBlur:', error);
-      }
-    }, true); // Use capture phase
-    
-    console.log('🔍 STEP 4: Direct event listener added to fullScreenBtn');
-    
-    // STEP 5: Test if element is clickable by adding visual feedback
-    fullScreenBtn.addEventListener('mouseenter', () => {
-      console.log('🔍 STEP 5: Mouse entered fullScreenBtn');
-    });
-    
-    fullScreenBtn.addEventListener('mousedown', () => {
-      console.log('🔍 STEP 5: Mouse down on fullScreenBtn');
-    });
-    
-    fullScreenBtn.addEventListener('mouseup', () => {
-      console.log('🔍 STEP 5: Mouse up on fullScreenBtn');
-    });
-  } else {
-    console.error('🚨 STEP 3: fullScreenBtn element NOT FOUND!');
-    console.log('🚨 Available elements with IDs:');
-    const allElements = document.querySelectorAll('[id]');
-    allElements.forEach(el => {
-      console.log(`  - ${el.tagName}#${el.id}`);
-    });
-  }
-}, 100); // Small delay to ensure DOM is ready
 
 // Map feature names to DOM elements
 function getElementForFeature(featureName) {
@@ -161,6 +168,31 @@ function getElementForFeature(featureName) {
     clear: document.getElementById('clearBtn'),
     settings: document.getElementById('settingsLink')
   };
-  
   return elementMap[featureName];
 }
+
+// Initialize all features based on the FEATURES config
+function initializeFeatures() {
+  for (const featureName in FEATURES) {
+    const feature = FEATURES[featureName];
+    const element = getElementForFeature(featureName);
+    
+    if (element) {
+      if (feature.enabled) {
+        element.classList.remove('disabled');
+        if (feature.handler) {
+          element.addEventListener('click', (event) => {
+            event.preventDefault();
+            feature.handler();
+          });
+        }
+      } else {
+        element.classList.add('disabled');
+        element.disabled = true;
+      }
+    }
+  }
+}
+
+// Initialize features when the DOM is ready
+document.addEventListener('DOMContentLoaded', initializeFeatures);
