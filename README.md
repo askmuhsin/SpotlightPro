@@ -31,6 +31,9 @@ Select what matters; dim, blur, or blackout the rest. Clean surface; sharper att
 
 ## Changelog
 
+### v1.2.4
+Implemented the "Clear All" feature, which removes all active blurs and highlights from the page. Also corrected the Snap keyboard shortcut display text in the popup UI.
+
 ### v1.2.3
 Added a keyboard shortcut (`⌘⇧V` or `Ctrl+Shift+V`) to activate Snap mode, providing a faster alternative to clicking the button in the popup. This required adding a background script to handle the command.
 

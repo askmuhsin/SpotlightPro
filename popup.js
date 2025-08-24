@@ -19,14 +19,43 @@ const FEATURES = {
     handler: null 
   },
   clear: { 
-    enabled: false, 
-    handler: null 
+    enabled: true, 
+    handler: clearAllEffects 
   },
   settings: { 
     enabled: true, 
     handler: openSettings 
   }
 };
+
+// Clear all effects
+function clearAllEffects() {
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    if (chrome.runtime.lastError || !tabs || tabs.length === 0) {
+      console.error('Could not query active tab.');
+      return;
+    }
+    chrome.scripting.executeScript({
+      target: {tabId: tabs[0].id},
+      func: () => {
+        // Clear body filter for full-screen mode
+        document.body.style.filter = '';
+
+        // Clear filters and outlines from all snapped elements
+        const allElements = document.querySelectorAll('*');
+        for (const element of allElements) {
+          if (element.style.filter && element.style.filter.includes('blur')) {
+            element.style.filter = '';
+          }
+          if (element.style.outline && element.style.outline.includes('solid')) {
+            element.style.outline = '';
+            element.style.outlineOffset = '';
+          }
+        }
+      }
+    });
+  });
+}
 
 // Core blur functionality
 function toggleFullScreenBlur() {
