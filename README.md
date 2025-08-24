@@ -31,6 +31,9 @@ Select what matters; dim, blur, or blackout the rest. Clean surface; sharper att
 
 ## Changelog
 
+### v1.2.2
+Implemented the core "Snap" feature. Users can now activate snap mode, which changes the cursor to a crosshair, highlights elements on hover with a blue outline, and applies a blur effect to the selected element upon clicking. The mode automatically exits after selection.
+
 ### v1.2.1
 Started snap feature development - Step 1 completed. Enabled Snap button in popup interface, implemented messaging flow from popup to content script, added startSnap message handler. Button now responds to clicks and closes popup correctly. Foundation established for element selection functionality.
 

@@ -61,11 +61,27 @@ function startSnapMode() {
             originalCursor: null,
             escKeyListener: null,
             hoverListener: null,
+            clickListener: null,
             currentHovered: null
           };
         }
         
         const snapMode = window.spotlightSnapMode;
+
+        function handleSelection(event) {
+          const target = event.target;
+          if (!target || target === document.body || target === document.documentElement) {
+            return;
+          }
+
+          // Prevent click from triggering actions (e.g., navigation)
+          event.preventDefault();
+          event.stopPropagation();
+
+          // Apply blur and exit snap mode
+          target.style.filter = 'blur(5px)';
+          disableSnapMode();
+        }
         
         function handleHover(event) {
           const target = event.target;
@@ -91,8 +107,6 @@ function startSnapMode() {
           // Apply new outline
           target.style.outline = '2px solid #1976d2';
           target.style.outlineOffset = '-2px';
-          
-          console.log('Spotlight Snap Hover:', target);
         }
 
         function enableSnapMode() {
@@ -101,18 +115,19 @@ function startSnapMode() {
           document.body.style.cursor = 'crosshair';
           snapMode.active = true;
 
-          // Add ESC listener
+          // Add listeners
           snapMode.escKeyListener = (event) => {
             if (event.code === 'Escape' && snapMode.active) {
               event.preventDefault();
               disableSnapMode();
             }
           };
-          document.addEventListener('keydown', snapMode.escKeyListener, true);
-
-          // Add hover listener
           snapMode.hoverListener = handleHover;
+          snapMode.clickListener = handleSelection;
+
+          document.addEventListener('keydown', snapMode.escKeyListener, true);
           document.addEventListener('mouseover', snapMode.hoverListener, true);
+          document.addEventListener('click', snapMode.clickListener, true);
         }
         
         function disableSnapMode() {
@@ -121,23 +136,21 @@ function startSnapMode() {
           // Restore last hovered element's outline
           if (snapMode.currentHovered && snapMode.currentHovered.element) {
             snapMode.currentHovered.element.style.outline = snapMode.currentHovered.originalOutline || '';
+            snapMode.currentHovered.element.style.outlineOffset = '';
           }
 
           document.body.style.cursor = snapMode.originalCursor || '';
           snapMode.active = false;
           snapMode.originalCursor = null;
 
-          // Remove ESC listener
-          if (snapMode.escKeyListener) {
-            document.removeEventListener('keydown', snapMode.escKeyListener, true);
-            snapMode.escKeyListener = null;
-          }
+          // Remove listeners
+          document.removeEventListener('keydown', snapMode.escKeyListener, true);
+          document.removeEventListener('mouseover', snapMode.hoverListener, true);
+          document.removeEventListener('click', snapMode.clickListener, true);
 
-          // Remove hover listener
-          if (snapMode.hoverListener) {
-            document.removeEventListener('mouseover', snapMode.hoverListener, true);
-            snapMode.hoverListener = null;
-          }
+          snapMode.escKeyListener = null;
+          snapMode.hoverListener = null;
+          snapMode.clickListener = null;
           snapMode.currentHovered = null;
         }
         

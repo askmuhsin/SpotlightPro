@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SpotlightPro",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Make any webpage instantly yours",
   "icons": {
     "16": "icon.png",
