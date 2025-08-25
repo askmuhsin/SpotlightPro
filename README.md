@@ -36,10 +36,10 @@ Select what matters; dim, blur, or blackout the rest. Clean surface; sharper att
 - **Snap Mode**: Allows blurring of single elements by clicking on them.
 - **Clear All**: Removes all active blurs from the page.
 - **Keyboard Shortcuts**: For both Full-Screen (`⌘⇧B`) and Snap (`⌘⇧V`) modes.
+- **Persistence**: Saves user selections on a per-site basis to re-apply them automatically. ([View Feature Spec](specs/feature-persistence.md))
 
 ### Development Plan
 - **Select Mode**: Implement a region-drawing tool to allow users to select and blur custom rectangular areas on the page. (low priority for now)
-- **Persistence**: Allow users to save their selections on a specific website, so they are automatically reapplied on future visits. ([View Feature Spec](feature-persistence.md)) (higher priority)
 - **Edit/Expand Mode**: Add functionality to modify existing blurs, such as resizing a selected region or removing a single snapped element. (vert low priority)
 - **Additional Mask Styles**: Implement the "Shade," "Grain," and "Blackout" visual styles for masking content. (medium priority)
 - **Design Consistency**: currently the popup window and settings page etc.. lacks a consistent design and is not true to the design language, fixt that. (medium priority)
