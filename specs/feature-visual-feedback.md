@@ -20,26 +20,30 @@
 
 ## 3. Feedback Scenarios & Copy
 
-Here are the key moments where feedback will be provided, along with proposed user-facing copy.
+Based on review, feedback will only be provided for actions whose results are not immediately visible.
 
-1.  **When "Snap" is clicked:**
-    - **Icon:** 🎯 (Target)
-    - **Copy:** "Click any element to focus."
-
-2.  **When "Persist on Site" is toggled ON:**
+1.  **When "Persist on Site" is toggled ON:**
     - **Icon:** 💾 (Save)
     - **Copy:** "Selections for this page will now be saved."
 
-3.  **When "Persist on Site" is toggled OFF:**
+2.  **When "Persist on Site" is toggled OFF:**
     - **Icon:** 🗑️ (Trash)
     - **Copy:** "Saved selections for this page have been cleared."
 
-4.  **When an element is successfully snapped:**
-    - **Icon:** ✨ (Sparkles)
-    - **Copy:** "Element focused."
-
-5.  **When "Clear All" is clicked:**
+3.  **When "Clear All" is clicked:**
     - **Icon:** ⭕ (Circle)
     - **Copy:** "All selections have been cleared."
 
-This approach ensures the user is always informed without using disruptive or ugly `alert()` boxes, creating a much smoother and more confident user experience.
+## 4. Implementation Plan
+
+### Phase 1: Create the Toaster Component
+- **File:** `design-system.css`, `injected.js`
+- **Tasks:**
+    1.  **Styling:** In `design-system.css`, create the CSS for the `spotlight-toast` component. This will include the glassy background, premium colors, rounded corners, soft shadows, and smooth slide/fade animations, following the established design language.
+    2.  **Logic:** In `injected.js`, create a reusable helper function: `showToast(icon, message)`. This function will be responsible for creating the toast element, adding its content, appending it to the page's `<body>`, and managing its lifecycle (fade in, wait, fade out, remove from DOM).
+
+### Phase 2: Integrate Toaster with Actions
+- **File:** `popup.js`
+- **Tasks:**
+    1.  Modify the `initializePersistence` function. When the toggle is changed, inject a script that calls `showToast()` with the appropriate message.
+    2.  Modify the `clearAllEffects` function. After clearing the effects, inject a script that calls `showToast()` to confirm the action.
