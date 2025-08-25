@@ -1,47 +1,67 @@
 // SpotlightPro Popup - Feature State Management
 
-// Feature configuration - defines what's implemented vs disabled
+// =================================================================================
+// Feature Configuration
+// =================================================================================
+
 const FEATURES = {
-  fullScreen: { 
-    enabled: true, 
-    handler: toggleFullScreenBlur 
-  },
-  select: { 
-    enabled: false, 
-    handler: null 
-  },
-  snap: { 
-    enabled: true, 
-    handler: startSnapMode 
-  },
-  edit: { 
-    enabled: false, 
-    handler: null 
-  },
-  clear: { 
-    enabled: true, 
-    handler: clearAllEffects 
-  },
-  settings: { 
-    enabled: true, 
-    handler: openSettings 
-  }
+  fullScreen: { enabled: true, handler: toggleFullScreenBlur },
+  select: { enabled: false, handler: null },
+  snap: { enabled: true, handler: startSnapMode },
+  edit: { enabled: false, handler: null },
+  clear: { enabled: true, handler: clearAllEffects },
+  settings: { enabled: true, handler: openSettings },
 };
 
-// Clear all effects
-function clearAllEffects() {
-  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    if (chrome.runtime.lastError || !tabs || tabs.length === 0) {
-      console.error('Could not query active tab.');
-      return;
-    }
-    chrome.scripting.executeScript({
-      target: {tabId: tabs[0].id},
-      func: () => {
-        // Clear body filter for full-screen mode
-        document.body.style.filter = '';
+// =================================================================================
+// Helper Functions
+// =================================================================================
 
-        // Clear filters and outlines from all snapped elements
+/**
+ * Generates a storage key based on the URL.
+ * Key is "hostname + up to 2 path segments".
+ * e.g., "www.youtube.com/watch"
+ */
+function getCurrentUrlKey(callback) {
+  chrome.tabs.query({ active: true, currentWindow: true, status: 'complete' }, (tabs) => {
+    if (chrome.runtime.lastError || !tabs || tabs.length === 0) {
+      console.error("Could not query active tab, or tab is not fully loaded.");
+      return callback(null);
+    }
+    
+    const urlString = tabs[0].url;
+    // Do not run on special browser pages
+    if (!urlString || !urlString.startsWith('http')) {
+      return callback(null);
+    }
+
+    try {
+      const url = new URL(urlString);
+      const pathSegments = url.pathname.split('/').filter(Boolean);
+      const keyPath = pathSegments.slice(0, 2).join('/');
+      // Use a simple join, avoiding a trailing slash if keyPath is empty
+      const finalPath = keyPath ? `/${keyPath}` : '';
+      callback(`${url.hostname}${finalPath}`);
+    } catch (error) {
+      console.error("Invalid URL:", urlString, error);
+      callback(null);
+    }
+  });
+}
+
+// =================================================================================
+// Core Feature Logic
+// =================================================================================
+
+function clearAllEffects() {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (chrome.runtime.lastError || !tabs || !tabs[0]) return;
+
+    // 1. Clear visual effects from the page
+    chrome.scripting.executeScript({
+      target: { tabId: tabs[0].id },
+      func: () => {
+        document.body.style.filter = '';
         const allElements = document.querySelectorAll('*');
         for (const element of allElements) {
           if (element.style.filter && element.style.filter.includes('blur')) {
@@ -52,142 +72,41 @@ function clearAllEffects() {
             element.style.outlineOffset = '';
           }
         }
+      },
+    });
+
+    // 2. Clear saved data from storage
+    getCurrentUrlKey((key) => {
+      if (key) {
+        chrome.storage.local.remove([`persist-${key}`, `selectors-${key}`]);
       }
     });
   });
 }
 
-// Core blur functionality
 function toggleFullScreenBlur() {
-  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    if (chrome.runtime.lastError || !tabs || tabs.length === 0) {
-      console.error('Could not query active tab.');
-      return;
-    }
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (chrome.runtime.lastError || !tabs || !tabs[0]) return;
     chrome.scripting.executeScript({
-      target: {tabId: tabs[0].id},
+      target: { tabId: tabs[0].id },
       func: () => {
-        const currentFilter = document.body.style.filter;
-        document.body.style.filter = currentFilter ? '' : 'blur(5px)';
-      }
+        document.body.style.filter = document.body.style.filter ? '' : 'blur(5px)';
+      },
     });
   });
 }
 
-// Start snap mode
 function startSnapMode() {
-  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    if (chrome.runtime.lastError || !tabs || tabs.length === 0) {
-      console.error('Could not query active tab.');
-      return;
-    }
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (chrome.runtime.lastError || !tabs || !tabs[0]) return;
     chrome.scripting.executeScript({
-      target: {tabId: tabs[0].id},
-      func: () => {
-        if (!window.spotlightSnapMode) {
-          window.spotlightSnapMode = {
-            active: false,
-            originalCursor: null,
-            escKeyListener: null,
-            hoverListener: null,
-            clickListener: null,
-            currentHovered: null
-          };
-        }
-        
-        const snapMode = window.spotlightSnapMode;
-
-        function handleSelection(event) {
-          const target = event.target;
-          if (!target || target === document.body || target === document.documentElement) {
-            return;
-          }
-
-          // Prevent click from triggering actions (e.g., navigation)
-          event.preventDefault();
-          event.stopPropagation();
-
-          // Apply blur and exit snap mode
-          target.style.filter = 'blur(5px)';
-          disableSnapMode();
-        }
-        
-        function handleHover(event) {
-          const target = event.target;
-          if (!target || target === document.body || target === document.documentElement) {
-            return;
-          }
-          
-          if (target === snapMode.currentHovered) {
-            return;
-          }
-
-          // Restore previous element's outline
-          if (snapMode.currentHovered && snapMode.currentHovered.element) {
-            snapMode.currentHovered.element.style.outline = snapMode.currentHovered.originalOutline || '';
-          }
-          
-          // Store new element and its outline
-          snapMode.currentHovered = {
-            element: target,
-            originalOutline: target.style.outline
-          };
-          
-          // Apply new outline
-          target.style.outline = '2px solid #1976d2';
-          target.style.outlineOffset = '-2px';
-        }
-
-        function enableSnapMode() {
-          if (snapMode.active) return;
-          snapMode.originalCursor = document.body.style.cursor;
-          document.body.style.cursor = 'crosshair';
-          snapMode.active = true;
-
-          // Add listeners
-          snapMode.escKeyListener = (event) => {
-            if (event.code === 'Escape' && snapMode.active) {
-              event.preventDefault();
-              disableSnapMode();
-            }
-          };
-          snapMode.hoverListener = handleHover;
-          snapMode.clickListener = handleSelection;
-
-          document.addEventListener('keydown', snapMode.escKeyListener, true);
-          document.addEventListener('mouseover', snapMode.hoverListener, true);
-          document.addEventListener('click', snapMode.clickListener, true);
-        }
-        
-        function disableSnapMode() {
-          if (!snapMode.active) return;
-
-          // Restore last hovered element's outline
-          if (snapMode.currentHovered && snapMode.currentHovered.element) {
-            snapMode.currentHovered.element.style.outline = snapMode.currentHovered.originalOutline || '';
-            snapMode.currentHovered.element.style.outlineOffset = '';
-          }
-
-          document.body.style.cursor = snapMode.originalCursor || '';
-          snapMode.active = false;
-          snapMode.originalCursor = null;
-
-          // Remove listeners
-          document.removeEventListener('keydown', snapMode.escKeyListener, true);
-          document.removeEventListener('mouseover', snapMode.hoverListener, true);
-          document.removeEventListener('click', snapMode.clickListener, true);
-
-          snapMode.escKeyListener = null;
-          snapMode.hoverListener = null;
-          snapMode.clickListener = null;
-          snapMode.currentHovered = null;
-        }
-        
-        enableSnapMode();
-      }
+      target: { tabId: tabs[0].id },
+      // Note: The giant `func` block is now in `injected.js`
+      // This makes the code much cleaner and easier to manage.
+      files: ['injected.js'],
     }, () => {
       if (chrome.runtime.lastError) {
-        console.error('Error executing snap script:', chrome.runtime.lastError);
+        console.error("Error executing snap script:", chrome.runtime.lastError);
       } else {
         window.close();
       }
@@ -195,29 +114,86 @@ function startSnapMode() {
   });
 }
 
-// Open settings page
 function openSettings() {
   chrome.runtime.openOptionsPage();
 }
 
-// Map feature names to DOM elements
-function getElementForFeature(featureName) {
-  const elementMap = {
-    fullScreen: document.getElementById('fullScreenBtn'),
-    select: document.getElementById('selectBtn'),
-    snap: document.getElementById('snapBtn'),
-    edit: document.getElementById('editBtn'),
-    clear: document.getElementById('clearBtn'),
-    settings: document.getElementById('settingsLink')
-  };
-  return elementMap[featureName];
+// =================================================================================
+// Persistence Logic
+// =================================================================================
+
+function initializePersistence() {
+  const toggle = document.getElementById('persistToggle');
+  const label = document.querySelector('label[for="persistToggle"]');
+  if (!toggle || !label) return;
+
+  getCurrentUrlKey((key) => {
+    // If we can't get a key (e.g., on chrome:// pages), disable the control.
+    if (!key) {
+      toggle.disabled = true;
+      label.classList.add('disabled');
+      return;
+    }
+
+    // If we have a key, ensure the control is enabled.
+    toggle.disabled = false;
+    label.classList.remove('disabled');
+
+    const persistKey = `persist-${key}`;
+    const selectorsKey = `selectors-${key}`;
+
+    // 1. Sync toggle state from storage
+    chrome.storage.local.get(persistKey, (result) => {
+      toggle.checked = !!result[persistKey];
+    });
+
+    // 2. Add listener for toggle changes
+    toggle.addEventListener('change', () => {
+      const isEnabled = toggle.checked;
+      chrome.storage.local.set({ [persistKey]: isEnabled });
+
+      if (isEnabled) {
+        // Retroactively save currently blurred elements
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (!tabs[0]) return;
+          chrome.scripting.executeScript({
+            target: { tabId: tabs[0].id },
+            files: ['injected.js'],
+            func: () => {
+              const blurredElements = document.querySelectorAll('[style*="blur"]');
+              const selectors = [];
+              for (const el of blurredElements) {
+                const selector = generateUniqueSelector(el);
+                if (selector) selectors.push(selector);
+              }
+              return selectors;
+            },
+          }, (injectionResults) => {
+            if (injectionResults && injectionResults[0] && injectionResults[0].result) {
+              const selectors = injectionResults[0].result;
+              if (selectors.length > 0) {
+                chrome.storage.local.set({ [selectorsKey]: selectors });
+              }
+            }
+          });
+        });
+      } else {
+        // If toggled off, clear the saved selectors
+        chrome.storage.local.remove(selectorsKey);
+      }
+    });
+  });
 }
 
-// Initialize all features based on the FEATURES config
+
+// =================================================================================
+// Initialization
+// =================================================================================
+
 function initializeFeatures() {
   for (const featureName in FEATURES) {
     const feature = FEATURES[featureName];
-    const element = getElementForFeature(featureName);
+    const element = document.getElementById(`${featureName}Btn`) || document.getElementById(`${featureName}Link`);
     
     if (element) {
       if (feature.enabled) {
@@ -236,5 +212,7 @@ function initializeFeatures() {
   }
 }
 
-// Initialize features when the DOM is ready
-document.addEventListener('DOMContentLoaded', initializeFeatures);
+document.addEventListener('DOMContentLoaded', () => {
+  initializeFeatures();
+  initializePersistence();
+});

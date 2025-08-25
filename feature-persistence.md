@@ -8,26 +8,27 @@
 
 ## 2. User Experience (UX) Flow
 
-### Enabling Persistence
-1.  The user opens the SpotlightPro popup on a site (e.g., `youtube.com`).
-2.  They click the "Persist on Site" toggle switch.
-3.  The toggle animates to the "on" position, providing clear visual feedback that persistence is now active for `youtube.com`.
-4.  This preference is saved specifically for this domain.
+### Enabling Persistence & Retroactive Save
+1.  The user blurs several elements on a page (e.g., `github.com/askmuhsin/SpotlightPro`).
+2.  After blurring, they decide they want to save this configuration. They open the SpotlightPro popup.
+3.  They click the "Persist on Site" toggle switch.
+4.  The toggle animates to "on". The extension immediately scans the page for all currently blurred elements, generates unique selectors for them, and saves them to storage under a key derived from the URL (`github.com/askmuhsin/SpotlightPro`).
+5.  This preference is saved, and the blurs are now persistent for this specific URL pattern.
 
 ### Applying & Saving Persistent Blurs
-1.  With persistence enabled, the user uses the "Snap" tool to blur one or more elements.
-2.  The experience is identical to the normal Snap workflow. Behind the scenes, as each element is blurred, a unique CSS selector for it is automatically saved to local storage.
-3.  The user closes the tab and revisits `youtube.com` later.
-4.  As the page loads, the saved elements are automatically blurred. There is no need for the user to open the extension or take any action.
+1.  With persistence already enabled, the user uses the "Snap" tool to blur an additional element.
+2.  Behind the scenes, a unique CSS selector for the new element is generated and added to the existing list of selectors in storage for that URL key.
+3.  The user closes the tab and later revisits `github.com/askmuhsin/SpotlightPro` or a related page like `github.com/askmuhsin/SpotlightPro/issues`.
+4.  As the page loads, the saved selectors are found, and all corresponding elements are automatically blurred.
 
 ### Disabling Persistence
-1.  The user opens the popup on `youtube.com` again.
+1.  The user opens the popup on `github.com/askmuhsin/SpotlightPro` again.
 2.  They click the "Persist on Site" toggle to turn it off.
-3.  This action immediately triggers the "Clear All" logic for that site: all currently blurred elements are cleared, and the saved selectors for the site are deleted from storage.
-4.  No blurs will be auto-applied on the next visit.
+3.  This action immediately triggers a "deep clear" for that URL key: all currently blurred elements are cleared, and the saved selectors for that key are deleted from storage.
+4.  No blurs will be auto-applied on the next visit to a matching URL.
 
 ### Interaction with "Clear All"
-- If the user clicks the "Clear All" button while persistence is active, it will perform a "deep clear": it will remove blurs from the current page AND delete all saved selectors for that site from storage.
+- If the user clicks the "Clear All" button, it will always perform a "deep clear". It will remove blurs from the current page AND delete any saved selectors for the current URL key from storage. This ensures "Clear All" is a definitive reset.
 
 ## 3. Technical Implementation Plan
 
@@ -35,10 +36,11 @@
 - **File:** `popup.js`, `popup.html`
 - **Tasks:**
     1.  Remove the `disabled` attribute from the `persistToggle` input and its `label` in `popup.html`.
-    2.  In `popup.js`, create a `syncPersistenceToggle()` function that runs when the popup opens.
-    3.  This function will get the current tab's hostname. It will then query `chrome.storage.local` for a key (e.g., `persist-youtube.com`) to see if persistence is enabled.
-    4.  The toggle's `checked` state will be set based on the value in storage.
-    5.  Add a `change` event listener to the toggle. When it's flipped, it will save the new boolean state to `chrome.storage.local` for the current hostname. If toggled off, it will also trigger the logic to clear saved selectors for that site.
+    2.  In `popup.js`, create a helper function `getCurrentUrlKey()` that implements the "Hostname + Meaningful Path" logic (hostname + max 2 path segments, no query params).
+    3.  Create a `syncPersistenceToggle()` function that runs when the popup opens. It will use `getCurrentUrlKey()` to check `chrome.storage.local` and set the toggle's `checked` state.
+    4.  Add a `change` event listener to the toggle.
+        -   **On Toggle ON:** It will trigger a script injection to find all elements with `style.filter` containing "blur", generate selectors for them, and save them to storage under the current URL key.
+        -   **On Toggle OFF:** It will trigger the `clearAllEffects` logic for the current URL key.
 
 ### Phase 2: Selector Generation
 - **File:** `popup.js` (within the injected script)
@@ -47,36 +49,38 @@
     2.  **Selector Strategy:**
         - If the element has a unique `id`, return `#element-id`.
         - If not, traverse up the DOM from the target element to the `body`.
-        - At each level, construct a selector part using `tagName`, classes, and `:nth-child()` to ensure uniqueness among siblings.
+        - At each level, construct a selector part using `tagName`, classes (ignoring framework-specific dynamic ones if possible), and `:nth-child()` to ensure uniqueness among siblings.
         - Combine the parts to create a full, stable CSS selector string.
     3.  This function will be included in the script injected by `startSnapMode`.
 
 ### Phase 3: Saving Selections
 - **File:** `popup.js` (within the injected script's `handleSelection` function)
 - **Tasks:**
-    1.  When an element is clicked in Snap mode, first check if persistence is enabled for the current site by querying `chrome.storage.local`.
-    2.  If it is, call `generateUniqueSelector()` on the clicked element.
-    3.  Retrieve the existing array of selectors for the site from storage (e.g., from a key like `selectors-youtube.com`).
-    4.  Add the new selector to the array (if it's not already there) and save the updated array back to `chrome.storage.local`.
+    1.  When an element is clicked in Snap mode, the script will first get the current URL key.
+    2.  It will then check `chrome.storage.local` to see if persistence is enabled for that key.
+    3.  If it is, it will call `generateUniqueSelector()` on the clicked element.
+    4.  It will retrieve the existing array of selectors for the key, add the new selector, and save the updated array back to storage.
 
 ### Phase 4: Applying Selections on Page Load
 - **File:** `content.js`
 - **Tasks:**
-    1.  On page load, the script will get the current hostname.
-    2.  It will query `chrome.storage.local` for the `selectors-HOSTNAME` key.
+    1.  On page load, the script will generate the URL key for the current page.
+    2.  It will query `chrome.storage.local` for a `selectors-URL_KEY` entry.
     3.  If an array of selectors is found, it will attempt to apply the blur to each element found with `document.querySelector()`.
-    4.  **Dynamic Content Handling:** To handle sites where elements load late, we will implement a `MutationObserver`. The observer will watch for changes to the DOM. When changes occur, it will re-run the query for any selectors that have not yet been successfully applied.
+    4.  **Dynamic Content Handling:** A `MutationObserver` will be implemented to watch for DOM changes. It will re-run the query for any selectors that were not found on the initial page load, ensuring blurs are applied to dynamically loaded content.
 
 ### Phase 5: Updating "Clear All" Logic
 - **File:** `popup.js`
 - **Tasks:**
     1.  Modify the `clearAllEffects` function.
-    2.  In addition to removing styles from the page, it will get the current hostname and use `chrome.storage.local.remove()` to delete the `selectors-HOSTNAME` key, ensuring blurs don't reappear on the next page load.
+    2.  It will now use the `getCurrentUrlKey()` helper.
+    3.  In addition to removing styles from the page, it will use `chrome.storage.local.remove()` to delete the `selectors-URL_KEY` and `persist-URL_KEY` entries, ensuring blurs don't reappear.
 
 ## 4. Edge Cases & Considerations
 
-- **Structural Website Changes:** If a website updates its layout, saved selectors may become invalid. This is a known limitation. The feature will fail gracefully (the blur simply won't apply). We will not implement self-healing selectors in this version.
+- **URL Keying Specificity:** The "Hostname + 2 Path Segments" rule is a balance. Users should understand that a rule for `/user/repo` will also apply to `/user/repo/issues`. This is generally desirable but is a point of clarity.
+- **Structural Website Changes:** If a website updates its layout, saved selectors may become invalid. This is a known limitation. The feature will fail gracefully (the blur simply won't apply).
 - **Dynamic IDs/Classes:** Some frameworks generate dynamic class names. The selector generation logic must prioritize stable attributes over dynamic ones.
 - **Performance:** The `MutationObserver` is efficient, but we should ensure it doesn't cause performance issues on very complex, rapidly-changing pages. We can scope it to only observe the `body` and its subtree.
-- **Cross-Tab Sync:** If a user has two tabs of the same site open and changes the persistence setting in one, the other tab will not reflect this change until it is reloaded. Real-time sync using `chrome.storage.onChanged` is a potential future enhancement but is out of scope for this initial implementation.
+- **Cross-Tab Sync:** If a user has two tabs of the same site open and changes the persistence setting in one, the other tab will not reflect this change until it is reloaded. This is acceptable for the initial implementation.
 
