@@ -2,6 +2,16 @@
 
 This document contains high-level notes and guidelines for future agents working on the SpotlightPro codebase.
 
+## Versioning
+
+- **Current Scheme:** `1.2.x`. Only increment the patch version (`x`) with each new commit.
+- **Process:** Before every final commit and push, increment the version.
+- **Files to Update:**
+    1.  `manifest.json` (the `"version"` key)
+    2.  `CHANGELOG.md` (add a new `### v1.2.x` entry)
+    3.  `popup.html` (the version hint in the footer)
+- **Scope:** Do not change the major (`1.x.x`) or minor (`x.2.x`) version unless explicitly instructed.
+
 ## Reusable Components
 
 ### Toaster Notification
