@@ -19,7 +19,7 @@ function showToast(icon, message) {
   const style = document.createElement('style');
   style.textContent = `
     .spotlight-toast {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
       padding: 12px 16px; background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;
@@ -30,8 +30,8 @@ function showToast(icon, message) {
       animation: toast-in 0.5s ease forwards;
     }
     .spotlight-toast.fade-out { animation: toast-out 0.5s ease forwards; }
-    @keyframes toast-in { from { bottom: -50px; opacity: 0; } to { bottom: 20px; opacity: 1; } }
-    @keyframes toast-out { from { bottom: 20px; opacity: 1; } to { bottom: -50px; opacity: 0; } }
+    @keyframes toast-in { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
+    @keyframes toast-out { from { top: 20px; opacity: 1; } to { top: -50px; opacity: 0; } }
   `;
   
   document.head.appendChild(style);

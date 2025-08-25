@@ -83,10 +83,16 @@ function clearAllEffects() {
     });
 
     // 3. Show confirmation toast
+    const tabId = tabs[0].id;
     chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
-      files: ['injected.js'], // Ensure showToast is available
-      func: () => showToast('⭕', 'All selections have been cleared.'),
+      target: { tabId: tabId },
+      files: ['injected.js'], // Step 1: Ensure showToast is available
+    }, () => {
+      // Step 2: Call the function
+      chrome.scripting.executeScript({
+        target: { tabId: tabId },
+        func: () => showToast('⭕', 'All selections have been cleared.'),
+      });
     });
   });
 }
@@ -164,11 +170,16 @@ function initializePersistence() {
       const toastIcon = isEnabled ? '💾' : '🗑️';
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (!tabs[0]) return;
+        const tabId = tabs[0].id;
         chrome.scripting.executeScript({
-          target: { tabId: tabs[0].id },
-          files: ['injected.js'], // Ensure showToast is available
-          func: (icon, msg) => showToast(icon, msg),
-          args: [toastIcon, toastMessage],
+          target: { tabId: tabId },
+          files: ['injected.js'],
+        }, () => {
+          chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            func: (icon, msg) => showToast(icon, msg),
+            args: [toastIcon, toastMessage],
+          });
         });
       });
 

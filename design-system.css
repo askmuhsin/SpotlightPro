@@ -425,7 +425,7 @@ body {
 /* Spotlight Toast Notification */
 .spotlight-toast {
   position: fixed;
-  bottom: 20px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
   padding: var(--spacing-md) var(--spacing-lg);
@@ -451,22 +451,22 @@ body {
 
 @keyframes toast-in {
   from {
-    bottom: -50px;
+    top: -50px;
     opacity: 0;
   }
   to {
-    bottom: 20px;
+    top: 20px;
     opacity: 1;
   }
 }
 
 @keyframes toast-out {
   from {
-    bottom: 20px;
+    top: 20px;
     opacity: 1;
   }
   to {
-    bottom: -50px;
+    top: -50px;
     opacity: 0;
   }
 }
