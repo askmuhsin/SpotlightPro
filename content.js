@@ -30,58 +30,72 @@ function getCurrentUrlKey(callback) {
 // =================================================================================
 
 function applyPersistentBlurs() {
+  console.log("SpotlightPro: [1/5] applyPersistentBlurs() called.");
+
   getCurrentUrlKey((key) => {
-    if (!key) return;
+    if (!key) {
+      console.log("SpotlightPro: [2/5] No valid URL key found. Aborting.");
+      return;
+    }
+    console.log(`SpotlightPro: [2/5] Generated URL key: ${key}`);
 
     const persistKey = `persist-${key}`;
     const selectorsKey = `selectors-${key}`;
 
     // First, check if persistence is even enabled for this URL key
-    chrome.storage.local.get(persistKey, (result) => {
-      if (!result[persistKey]) {
-        return; // Persistence is not on, do nothing.
+    chrome.storage.local.get([persistKey, selectorsKey], (data) => {
+      console.log("SpotlightPro: [3/5] Retrieved data from storage:", data);
+
+      const isEnabled = data[persistKey];
+      if (!isEnabled) {
+        console.log("SpotlightPro: [4/5] Persistence is not enabled for this key. Aborting.");
+        return;
       }
 
-      // If it is on, get the selectors and apply them
-      chrome.storage.local.get(selectorsKey, (data) => {
-        const selectors = data[selectorsKey];
-        if (!selectors || selectors.length === 0) {
-          return;
-        }
+      const selectors = data[selectorsKey];
+      if (!selectors || selectors.length === 0) {
+        console.log("SpotlightPro: [4/5] No selectors found for this key. Aborting.");
+        return;
+      }
+      
+      console.log(`SpotlightPro: [4/5] Found ${selectors.length} selectors to apply.`);
 
-        let remainingSelectors = [...selectors];
+      let remainingSelectors = [...selectors];
 
-        const apply = (selectorsToTry) => {
-          const failed = [];
-          for (const selector of selectorsToTry) {
-            const element = document.querySelector(selector);
-            if (element) {
-              element.style.filter = 'blur(5px)';
-            } else {
-              failed.push(selector);
-            }
+      const apply = (selectorsToTry) => {
+        const failed = [];
+        for (const selector of selectorsToTry) {
+          const element = document.querySelector(selector);
+          if (element) {
+            console.log(`SpotlightPro: [5/5] SUCCESS: Found element for selector "${selector}". Applying blur.`);
+            element.style.filter = 'blur(5px)';
+          } else {
+            console.warn(`SpotlightPro: [5/5] FAILED: Could not find element for selector "${selector}".`);
+            failed.push(selector);
           }
-          return failed;
-        };
-
-        // Initial attempt
-        remainingSelectors = apply(remainingSelectors);
-
-        // If any failed, observe the DOM for changes and retry
-        if (remainingSelectors.length > 0) {
-          const observer = new MutationObserver(() => {
-            remainingSelectors = apply(remainingSelectors);
-            if (remainingSelectors.length === 0) {
-              observer.disconnect(); // All selectors applied, stop observing.
-            }
-          });
-
-          observer.observe(document.body || document.documentElement, {
-            childList: true,
-            subtree: true,
-          });
         }
-      });
+        return failed;
+      };
+
+      // Initial attempt
+      remainingSelectors = apply(remainingSelectors);
+
+      // If any failed, observe the DOM for changes and retry
+      if (remainingSelectors.length > 0) {
+        console.log(`SpotlightPro: Retrying ${remainingSelectors.length} failed selectors with MutationObserver.`);
+        const observer = new MutationObserver(() => {
+          remainingSelectors = apply(remainingSelectors);
+          if (remainingSelectors.length === 0) {
+            console.log("SpotlightPro: All remaining selectors applied successfully. Disconnecting observer.");
+            observer.disconnect();
+          }
+        });
+
+        observer.observe(document.body || document.documentElement, {
+          childList: true,
+          subtree: true,
+        });
+      }
     });
   });
 }

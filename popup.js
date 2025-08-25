@@ -153,28 +153,37 @@ function initializePersistence() {
       chrome.storage.local.set({ [persistKey]: isEnabled });
 
       if (isEnabled) {
-        // Retroactively save currently blurred elements
+        // Retroactively save currently blurred elements. This requires a two-step execution.
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           if (!tabs[0]) return;
+          const tabId = tabs[0].id;
+
+          // Step 1: Inject the file containing the helper function.
           chrome.scripting.executeScript({
-            target: { tabId: tabs[0].id },
+            target: { tabId: tabId },
             files: ['injected.js'],
-            func: () => {
-              const blurredElements = document.querySelectorAll('[style*="blur"]');
-              const selectors = [];
-              for (const el of blurredElements) {
-                const selector = generateUniqueSelector(el);
-                if (selector) selectors.push(selector);
+          }, () => {
+            // Step 2: In the callback, execute the function that uses the helper.
+            chrome.scripting.executeScript({
+              target: { tabId: tabId },
+              func: () => {
+                const blurredElements = document.querySelectorAll('[style*="blur"]');
+                const selectors = [];
+                for (const el of blurredElements) {
+                  // generateUniqueSelector is now available from the injected file
+                  const selector = generateUniqueSelector(el);
+                  if (selector) selectors.push(selector);
+                }
+                return selectors;
+              },
+            }, (injectionResults) => {
+              if (injectionResults && injectionResults[0] && injectionResults[0].result) {
+                const selectors = injectionResults[0].result;
+                if (selectors.length > 0) {
+                  chrome.storage.local.set({ [selectorsKey]: selectors });
+                }
               }
-              return selectors;
-            },
-          }, (injectionResults) => {
-            if (injectionResults && injectionResults[0] && injectionResults[0].result) {
-              const selectors = injectionResults[0].result;
-              if (selectors.length > 0) {
-                chrome.storage.local.set({ [selectorsKey]: selectors });
-              }
-            }
+            });
           });
         });
       } else {

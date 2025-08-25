@@ -1,5 +1,9 @@
 # Changelog
 
+### v1.2.6
+- **Fix**: Corrected a critical bug in the "Persistence" feature where blurs applied *before* enabling the toggle were not being saved.
+  - The `chrome.scripting.executeScript` API call was structured incorrectly, causing the retroactive save function to be ignored. This has been fixed by chaining the script executions.
+
 ### v1.2.5
 - **Feature**: Implemented the "Persist on Site" feature.
   - Users can now toggle persistence to save and automatically re-apply blurs on specific websites.
