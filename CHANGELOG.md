@@ -1,5 +1,8 @@
 # Changelog
 
+### v1.2.8
+- **Style**: Changed the position of toast notifications to appear from the top of the screen for a more modern feel.
+
 ### v1.2.7
 - **Feature**: Implemented in-page visual feedback ("toast" notifications).
   - A reusable `showToast` component has been added to provide non-intrusive confirmations for user actions.

@@ -37,14 +37,7 @@ Select what matters; dim, blur, or blackout the rest. Clean surface; sharper att
 - **Clear All**: Removes all active blurs from the page.
 - **Keyboard Shortcuts**: For both Full-Screen (`⌘⇧B`) and Snap (`⌘⇧V`) modes.
 - **Persistence**: Saves user selections on a per-site basis to re-apply them automatically. ([View Feature Spec](specs/feature-persistence.md))
-
-### Development Plan
-- **Visual Feedback**: Provide elegant, non-intrusive toast notifications to confirm user actions. ([View Feature Spec](specs/feature-visual-feedback.md)) (highest priority)
-- **Select Mode**: Implement a region-drawing tool to allow users to select and blur custom rectangular areas on the page. (low priority for now)
-- **Edit/Expand Mode**: Add functionality to modify existing blurs, such as resizing a selected region or removing a single snapped element. (vert low priority)
-- **Additional Mask Styles**: Implement the "Shade," "Grain," and "Blackout" visual styles for masking content. (medium priority)
-- **Design Consistency**: currently the popup window and settings page etc.. lacks a consistent design and is not true to the design language, fixt that. (medium priority)
-- **Keyboard shortcut configuration**: currently user does not have much flexibility in defining the keybaord shortcuts, in the settings (options page) user should be able to do this. (medium priority)
+- **Visual Feedback**: Provides elegant, non-intrusive toast notifications to confirm user actions. ([View Feature Spec](specs/feature-visual-feedback.md))
 
 ### Development Plan
 - **Select Mode**: Implement a region-drawing tool to allow users to select and blur custom rectangular areas on the page. (low priority for now)
