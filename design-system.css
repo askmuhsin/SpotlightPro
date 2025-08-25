@@ -422,3 +422,52 @@ body {
   color: var(--text-secondary);
   font-family: ui-monospace, "SF Mono", Consolas, monospace;
 }
+/* Spotlight Toast Notification */
+.spotlight-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-pill);
+  box-shadow: var(--glass-shadow);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  z-index: 2147483647; /* Max z-index */
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  animation: toast-in 0.5s ease forwards;
+}
+
+.spotlight-toast.fade-out {
+  animation: toast-out 0.5s ease forwards;
+}
+
+@keyframes toast-in {
+  from {
+    bottom: -50px;
+    opacity: 0;
+  }
+  to {
+    bottom: 20px;
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out {
+  from {
+    bottom: 20px;
+    opacity: 1;
+  }
+  to {
+    bottom: -50px;
+    opacity: 0;
+  }
+}
+

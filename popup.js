@@ -81,6 +81,13 @@ function clearAllEffects() {
         chrome.storage.local.remove([`persist-${key}`, `selectors-${key}`]);
       }
     });
+
+    // 3. Show confirmation toast
+    chrome.scripting.executeScript({
+      target: { tabId: tabs[0].id },
+      files: ['injected.js'], // Ensure showToast is available
+      func: () => showToast('⭕', 'All selections have been cleared.'),
+    });
   });
 }
 
@@ -151,6 +158,19 @@ function initializePersistence() {
     toggle.addEventListener('change', () => {
       const isEnabled = toggle.checked;
       chrome.storage.local.set({ [persistKey]: isEnabled });
+
+      // Show feedback toast
+      const toastMessage = isEnabled ? "Selections for this page will now be saved." : "Saved selections for this page have been cleared.";
+      const toastIcon = isEnabled ? '💾' : '🗑️';
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (!tabs[0]) return;
+        chrome.scripting.executeScript({
+          target: { tabId: tabs[0].id },
+          files: ['injected.js'], // Ensure showToast is available
+          func: (icon, msg) => showToast(icon, msg),
+          args: [toastIcon, toastMessage],
+        });
+      });
 
       if (isEnabled) {
         // Retroactively save currently blurred elements. This requires a two-step execution.
